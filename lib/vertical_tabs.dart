@@ -4,11 +4,10 @@ enum IndicatorSide { start, end }
 
 /// A vertical tab widget for flutter
 class VerticalTabs extends StatefulWidget {
-  final Key key;
   final int initialIndex;
   final double tabsWidth;
   final double indicatorWidth;
-  final IndicatorSide indicatorSide;
+  final IndicatorSide? indicatorSide;
   final List<Tab> tabs;
   final List<Widget> contents;
   final TextDirection direction;
@@ -23,13 +22,13 @@ class VerticalTabs extends StatefulWidget {
   final Curve changePageCurve;
   final Color tabsShadowColor;
   final double tabsElevation;
-  final Function(int tabIndex) onSelect;
-  final Color backgroundColor;
+  final Function(int tabIndex)? onSelect;
+  final Color? backgroundColor;
 
   VerticalTabs(
-      {this.key,
-      @required this.tabs,
-      @required this.contents,
+      {super.key,
+      required this.tabs,
+      required this.contents,
       this.tabsWidth = 200,
       this.indicatorWidth = 3,
       this.indicatorSide,
@@ -48,9 +47,7 @@ class VerticalTabs extends StatefulWidget {
       this.tabsElevation = 2.0,
       this.onSelect,
       this.backgroundColor})
-      : assert(
-            tabs != null && contents != null && tabs.length == contents.length),
-        super(key: key);
+      : assert(tabs.length == contents.length);
 
   @override
   _VerticalTabsState createState() => _VerticalTabsState();
@@ -58,12 +55,12 @@ class VerticalTabs extends StatefulWidget {
 
 class _VerticalTabsState extends State<VerticalTabs>
     with TickerProviderStateMixin {
-  int _selectedIndex;
-  bool _changePageByTapView;
+  late int _selectedIndex;
+  bool? _changePageByTapView = false;
 
-  AnimationController animationController;
-  Animation<double> animation;
-  Animation<RelativeRect> rectAnimation;
+  late AnimationController animationController;
+  late Animation<double> animation;
+  late Animation<RelativeRect> rectAnimation;
 
   PageController pageController = PageController();
 
@@ -128,7 +125,7 @@ class _VerticalTabsState extends State<VerticalTabs>
 
                           Widget child;
                           if (tab.child != null) {
-                            child = tab.child;
+                            child = tab.child!;
                           } else {
                             child = Container(
                                 padding: EdgeInsets.all(10),
@@ -137,7 +134,7 @@ class _VerticalTabsState extends State<VerticalTabs>
                                     (tab.icon != null)
                                         ? Row(
                                             children: <Widget>[
-                                              tab.icon,
+                                              tab.icon!,
                                               SizedBox(
                                                 width: 5,
                                               )
@@ -148,7 +145,7 @@ class _VerticalTabsState extends State<VerticalTabs>
                                         ? Container(
                                             width: widget.tabsWidth - 50,
                                             child: Text(
-                                              tab.text,
+                                              tab.text ?? '',
                                               softWrap: true,
                                               style: _selectedIndex == index
                                                   ? widget.selectedTabTextStyle
@@ -163,7 +160,7 @@ class _VerticalTabsState extends State<VerticalTabs>
                           if (_selectedIndex == index)
                             itemBGColor = widget.selectedTabBackgroundColor;
 
-                          double left, right;
+                          double? left, right;
                           if (widget.direction == TextDirection.rtl) {
                             left = (widget.indicatorSide == IndicatorSide.end)
                                 ? 0
@@ -271,8 +268,6 @@ class _VerticalTabsState extends State<VerticalTabs>
     }
     animationControllers[index].forward();
 
-    if (widget.onSelect != null) {
-      widget.onSelect(_selectedIndex);
-    }
+    widget.onSelect?.call(_selectedIndex);
   }
 }
